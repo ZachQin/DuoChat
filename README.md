@@ -1,0 +1,2 @@
+# Checkmate
+Checkmate is an innovative library for managing tasks with two large language model (LLM) instances acting as an executor and a verifier. Through multiple rounds of dialogue, the task's output is continually refined until the verifier deems it to meet the standard. Ideal for scenarios requiring iterative feedback and refinement, such as code reviews, content editing, and more.

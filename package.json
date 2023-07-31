@@ -1,0 +1,40 @@
+{
+  "name": "checkmate",
+  "version": "0.0.1",
+  "description": "An LLM-based library orchestrating iterative task execution and verification through AI-powered dialogues.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p src",
+    "build-all": "npm run build --workspaces",
+    "prepare": "npm run build-all"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZachQin/checkmate.git"
+  },
+  "keywords": [
+    "LLM",
+    "prompt",
+    "TypeScript"
+  ],
+  "author": "Zach Qin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZachQin/checkmate/issues"
+  },
+  "homepage": "https://github.com/ZachQin/checkmate#readme",
+  "dependencies": {
+    "typescript": "^5.1.6"
+  },
+  "workspaces": [
+    "./",
+    "./examples/*"
+  ],
+  "devDependencies": {
+    "@types/node": "18.17"
+  }
+}

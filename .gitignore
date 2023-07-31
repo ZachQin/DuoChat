@@ -1,0 +1,17 @@
+build/
+dist/
+out/
+node_modules/
+.env
+*.map
+*.out.txt
+*.bat
+
+# OS generated files
+.DS_Store
+
+# Local development and debugging
+.vscode
+**/.vscode/*
+**/tsconfig.debug.json
+!**/.vscode/launch.json
