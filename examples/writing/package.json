@@ -1,0 +1,19 @@
+{
+  "name": "writing",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p src"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "18.17",
+    "checkmate": "^0.0.1"
+  }
+}
