@@ -69,49 +69,48 @@ export function createCheckMate(executor: TypeChatLanguageModel, verifier: TypeC
         let executorSolution = '';
         let verifierFeedback;
         for (let i = 0; i < checkmate.maxRefinementRounds; i++) {
-            if (i === 0) {
-                executorPrompt += createExecuteInitialPrompt(taskDescription) + '\n';
-            } else {
-                executorPrompt += createExecuteFollowupPrompt(verifierFeedback) + '\n';
-            }
-            logForDebug(`Round ${i} executor prompt: `, executorPrompt);
-            executorSolution = await executor.complete(executorPrompt);
-            logForDebug(`Round ${i} executor solution: `, executorSolution);
-            if (i === 0) {
-                if (i < checkmate.minRefinementRounds) {
-                    verifierPrompt += createVerifyInitialPromptBeforeMinRefinementRounds(taskDescription, executorSolution) + '\n';
+            try {
+                if (i === 0) {
+                    executorPrompt += createExecuteInitialPrompt(taskDescription) + '\n';
                 } else {
-                    verifierPrompt += createVerifyInitialPrompt(taskDescription, executorSolution) + '\n';
+                    executorPrompt += createExecuteFollowupPrompt(verifierFeedback) + '\n';
                 }
-            } else {
-                if (i < checkmate.minRefinementRounds) {
-                    verifierPrompt += createVerifyFollowupPromptBeforeMinRefinementRounds(executorSolution) + '\n';
+                logForDebug(`Round ${i} executor prompt: `, executorPrompt);
+                executorSolution = await executor.complete(executorPrompt);
+                logForDebug(`Round ${i} executor solution: `, executorSolution);
+                if (i === 0) {
+                    if (i < checkmate.minRefinementRounds) {
+                        verifierPrompt += createVerifyInitialPromptBeforeMinRefinementRounds(taskDescription, executorSolution) + '\n';
+                    } else {
+                        verifierPrompt += createVerifyInitialPrompt(taskDescription, executorSolution) + '\n';
+                    }
                 } else {
-                    verifierPrompt += createVerifyFollowupPrompt(executorSolution) + '\n';
+                    if (i < checkmate.minRefinementRounds) {
+                        verifierPrompt += createVerifyFollowupPromptBeforeMinRefinementRounds(executorSolution) + '\n';
+                    } else {
+                        verifierPrompt += createVerifyFollowupPrompt(executorSolution) + '\n';
+                    }
                 }
-            }
-            logForDebug(`Round ${i} verifier prompt: `, verifierPrompt);
-            const verifierResponseText = await verifier.complete(verifierPrompt);
-            logForDebug(`Round ${i} verifier response: `, verifierResponseText);
-            if (i < checkmate.minRefinementRounds) {
-                verifierFeedback = verifierResponseText;
-            } else {
-                const startIndex = verifierResponseText.indexOf("{");
-                const endIndex = verifierResponseText.lastIndexOf("}");
-                if (!(startIndex >= 0 && endIndex > startIndex)) {
-                    throw new Error(`Response is not JSON:\n${verifierResponseText}`);
+                logForDebug(`Round ${i} verifier prompt: `, verifierPrompt);
+                const verifierResponseText = await verifier.complete(verifierPrompt);
+                logForDebug(`Round ${i} verifier response: `, verifierResponseText);
+                if (i < checkmate.minRefinementRounds) {
+                    verifierFeedback = verifierResponseText;
+                } else {
+                    const startIndex = verifierResponseText.indexOf("{");
+                    const endIndex = verifierResponseText.lastIndexOf("}");
+                    if (!(startIndex >= 0 && endIndex > startIndex)) {
+                        throw new Error(`Response is not JSON:\n${verifierResponseText}`);
+                    }
+                    const jsonText = verifierResponseText.slice(startIndex, endIndex + 1);
+                    let verifierResponse = JSON.parse(jsonText);
+                    if (verifierResponse.isSatisfactory) {
+                        return executorSolution;
+                    }
+                    verifierFeedback = verifierResponse.feedback;
                 }
-                const jsonText = verifierResponseText.slice(startIndex, endIndex + 1);
-                let verifierResponse;
-                try {
-                    verifierResponse = JSON.parse(jsonText);
-                } catch (e) {
-                    throw new Error(`Response is not JSON:\n${verifierResponseText}`);
-                }
-                if (verifierResponse.isSatisfactory) {
-                    return executorSolution;
-                }
-                verifierFeedback = verifierResponse.feedback;
+            } catch (error) {
+                logForDebug(`Round ${i} error: `, error);
             }
         }
         logForDebug(`Max refinement rounds reached.`);
