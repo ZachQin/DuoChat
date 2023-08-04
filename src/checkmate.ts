@@ -16,6 +16,13 @@ export interface Checkmate {
     perform(taskDescription: string): Promise<string>;
 }
 
+interface RoundRecord {
+    executorPrompt: string;
+    executorSolution: string;
+    verifierPrompt: string;
+    verifierFeedback: string;
+}
+
 export function createCheckMate(executor: TypeChatLanguageModel, verifier: TypeChatLanguageModel): Checkmate {
     const checkmate = {
         executor,
@@ -45,6 +52,13 @@ export function createCheckMate(executor: TypeChatLanguageModel, verifier: TypeC
         }
     }
 
+    function createChatHistory(chatHistory: RoundRecord[], particialRoundRecord?: Partial<RoundRecord>): string {
+        if (chatHistory.length === 0 && !particialRoundRecord) {
+            return '';
+        }
+        return `--- JSON format Chat History---\n${JSON.stringify([...chatHistory, particialRoundRecord], null, 2)}\n--- End of Chat History ---\n`;
+    }
+
     function createExecuteInitialPrompt(taskDescription: string): string {
         return `As the task executor, your job is to complete the following task to the best of your ability:\n\`\`\`\n${taskDescription}\n\`\`\`\nPlease generate a solution.`;
     }
@@ -70,37 +84,38 @@ export function createCheckMate(executor: TypeChatLanguageModel, verifier: TypeC
     }
 
     async function perform(taskDescription: string): Promise<string> {
-        let executorPrompt = '';
-        let verifierPrompt = '';
-        let executorSolution = '';
-        let verifierFeedback;
-        for (let i = 0; i < checkmate.maxRefinementRounds; i++) {
+        const recordHistory: RoundRecord[] = [];
+        while (recordHistory.length < checkmate.maxRefinementRounds) {
+            const round = recordHistory.length;
+            let executorPrompt, executorSolution, verifierPrompt, verifierFeedback;
             try {
-                if (i === 0) {
-                    executorPrompt += createExecuteInitialPrompt(taskDescription) + '\n';
+                if (recordHistory.length === 0) {
+                    executorPrompt = createExecuteInitialPrompt(taskDescription);
                 } else {
-                    executorPrompt += createExecuteFollowupPrompt(verifierFeedback) + '\n';
+                    executorPrompt = createExecuteFollowupPrompt(recordHistory[recordHistory.length - 1].verifierFeedback);
                 }
-                logForDebug(`Round ${i} executor prompt:\n${executorPrompt}\n`);
-                executorSolution = await executor.complete(executorPrompt);
-                logForDebug(`Round ${i} executor solution:\n${executorSolution}\n`);
-                if (i === 0) {
-                    if (i < checkmate.minRefinementRounds) {
-                        verifierPrompt += createVerifyInitialPromptBeforeMinRefinementRounds(taskDescription, executorSolution) + '\n';
+                logForDebug(`Round ${round} executor prompt:\n${executorPrompt}\n`);
+                const executorPromptWithChatHistory = createChatHistory(recordHistory) + executorPrompt;
+                executorSolution = await executor.complete(executorPromptWithChatHistory);
+                logForDebug(`Round ${round} executor solution:\n${executorSolution}\n`);
+                if (recordHistory.length === 0) {
+                    if (round < checkmate.minRefinementRounds) {
+                        verifierPrompt = createVerifyInitialPromptBeforeMinRefinementRounds(taskDescription, executorSolution);
                     } else {
-                        verifierPrompt += createVerifyInitialPrompt(taskDescription, executorSolution) + '\n';
+                        verifierPrompt = createVerifyInitialPrompt(taskDescription, executorSolution);
                     }
                 } else {
-                    if (i < checkmate.minRefinementRounds) {
-                        verifierPrompt += createVerifyFollowupPromptBeforeMinRefinementRounds(executorSolution) + '\n';
+                    if (round < checkmate.minRefinementRounds) {
+                        verifierPrompt = createVerifyFollowupPromptBeforeMinRefinementRounds(executorSolution);
                     } else {
-                        verifierPrompt += createVerifyFollowupPrompt(executorSolution) + '\n';
+                        verifierPrompt = createVerifyFollowupPrompt(executorSolution);
                     }
                 }
-                logForDebug(`Round ${i} verifier prompt:\n${verifierPrompt}\n`);
-                const verifierResponseText = await verifier.complete(verifierPrompt);
-                logForDebug(`Round ${i} verifier response:\n${verifierResponseText}\n`);
-                if (i < checkmate.minRefinementRounds) {
+                logForDebug(`Round ${round} verifier prompt:\n${verifierPrompt}\n`);
+                const verifierPromptWithChatHistory = createChatHistory(recordHistory, { executorPrompt, executorSolution }) + verifierPrompt;
+                const verifierResponseText = await verifier.complete(verifierPromptWithChatHistory);
+                logForDebug(`Round ${round} verifier response:\n${verifierResponseText}\n`);
+                if (round < checkmate.minRefinementRounds) {
                     verifierFeedback = verifierResponseText;
                 } else {
                     const startIndex = verifierResponseText.indexOf("{");
@@ -115,11 +130,17 @@ export function createCheckMate(executor: TypeChatLanguageModel, verifier: TypeC
                     }
                     verifierFeedback = verifierResponse.feedback;
                 }
+                recordHistory.push({
+                    executorPrompt,
+                    executorSolution,
+                    verifierPrompt,
+                    verifierFeedback,
+                });
             } catch (error) {
-                warnForDebug(`Round ${i} error: `, error);
+                warnForDebug(`Round ${round} error: `, error);
             }
         }
         warnForDebug(`Max refinement rounds reached.`);
-        return executorSolution;
+        return recordHistory[recordHistory.length - 1].executorSolution;
     }
 }
