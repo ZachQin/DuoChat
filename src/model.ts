@@ -100,7 +100,6 @@ function createAxiosLanguageModel(url: string, config: object, defaultParams: Re
             const params = {
                 ...defaultParams,
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0,
                 n: 1
             };
             const result = await client.post(url, params, { validateStatus: status => true });
