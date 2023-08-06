@@ -1,12 +1,22 @@
+/**
+ * This file, model.ts, is adapted and modified from the TypeChat project.
+ * 
+ * We would like to express our gratitude to the TypeChat project and its contributors for providing a foundation and inspiration for this implementation.
+ * 
+ * Any modifications, enhancements, and adaptations present in this file do not necessarily reflect the original design or intentions of the TypeChat project.
+ * 
+ * Please refer to [https://github.com/microsoft/TypeChat] for the original source and additional details.
+ */
+
 import axios from "axios";
 
 /**
- * Represents a AI language model that can complete prompts. TypeChat uses an implementation of this
+ * Represents a AI language model that can complete prompts. Checkmate uses an implementation of this
  * interface to communicate with an AI service that can translate natural language requests to JSON
  * instances according to a provided schema. The `createLanguageModel`, `createOpenAILanguageModel`,
  * and `createAzureOpenAILanguageModel` functions create instances of this interface.
  */
-export interface TypeChatLanguageModel {
+export interface CheckmateLanguageModel {
     /**
      * Optional property that specifies the maximum number of retry attempts (the default is 3).
      */
@@ -35,9 +45,9 @@ export interface TypeChatLanguageModel {
  * or an exception will be thrown.
  *
  * If none of these key variables are defined, an exception is thrown.
- * @returns An instance of `TypeChatLanguageModel`.
+ * @returns An instance of `CheckmateLanguageModel`.
  */
-export function createLanguageModel(env: Record<string, string | undefined>): TypeChatLanguageModel {
+export function createLanguageModel(env: Record<string, string | undefined>): CheckmateLanguageModel {
     if (env.OPENAI_API_KEY) {
         const apiKey = env.OPENAI_API_KEY ?? missingEnvironmentVariable("OPENAI_API_KEY");
         const model = env.OPENAI_MODEL ?? missingEnvironmentVariable("OPENAI_MODEL");
@@ -59,9 +69,9 @@ export function createLanguageModel(env: Record<string, string | undefined>): Ty
  * @param model The model name.
  * @param endPoint The URL of the OpenAI REST API endpoint. Defaults to "https://api.openai.com/v1/chat/completions".
  * @param org The OpenAI organization id.
- * @returns An instance of `TypeChatLanguageModel`.
+ * @returns An instance of `CheckmateLanguageModel`.
  */
-export function createOpenAILanguageModel(apiKey: string, model: string, endPoint = "https://api.openai.com/v1/chat/completions", org = ""): TypeChatLanguageModel {
+export function createOpenAILanguageModel(apiKey: string, model: string, endPoint = "https://api.openai.com/v1/chat/completions", org = ""): CheckmateLanguageModel {
     return createAxiosLanguageModel(endPoint, {
         headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -76,9 +86,9 @@ export function createOpenAILanguageModel(apiKey: string, model: string, endPoin
  *   "https://{your-resource-name}.openai.azure.com/openai/deployments/{your-deployment-name}/chat/completions?api-version={API-version}".
  *   Example deployment names are "gpt-35-turbo" and "gpt-4". An example API versions is "2023-05-15".
  * @param apiKey The Azure OpenAI API key.
- * @returns An instance of `TypeChatLanguageModel`.
+ * @returns An instance of `CheckmateLanguageModel`.
  */
-export function createAzureOpenAILanguageModel(apiKey: string, endPoint: string,): TypeChatLanguageModel {
+export function createAzureOpenAILanguageModel(apiKey: string, endPoint: string,): CheckmateLanguageModel {
     return createAxiosLanguageModel(endPoint, { headers: { "api-key": apiKey } }, {});
 }
 
@@ -87,7 +97,7 @@ export function createAzureOpenAILanguageModel(apiKey: string, endPoint: string,
  */
 function createAxiosLanguageModel(url: string, config: object, defaultParams: Record<string, string>) {
     const client = axios.create(config);
-    const model: TypeChatLanguageModel = {
+    const model: CheckmateLanguageModel = {
         complete
     };
     return model;

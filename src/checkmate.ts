@@ -1,8 +1,8 @@
-import { TypeChatLanguageModel } from "./model";
+import { CheckmateLanguageModel } from "./model";
 
 export interface Checkmate {
-    executor: TypeChatLanguageModel;
-    verifier: TypeChatLanguageModel;
+    executor: CheckmateLanguageModel;
+    verifier: CheckmateLanguageModel;
     refinementRounds: number;
     maxAttempts: number;
     debug: boolean;
@@ -21,12 +21,12 @@ interface RoundRecord {
     verifierFeedback: string;
 }
 
-export function createCheckMate(executor: TypeChatLanguageModel, verifier: TypeChatLanguageModel, refinementRounds = 3): Checkmate {
+export function createCheckMate(executor: CheckmateLanguageModel, verifier: CheckmateLanguageModel): Checkmate {
     const checkmate = {
         executor,
         verifier,
-        refinementRounds,
-        maxAttempts: refinementRounds + 2,
+        refinementRounds: 3,
+        maxAttempts: 5,
         debug: false,
         createExecuteInitialPrompt,
         createExecuteFollowupPrompt,

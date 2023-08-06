@@ -3,12 +3,12 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: path.join(__dirname, "../../../.env") });
 
-import { createLanguageModel, TypeChatLanguageModel } from 'checkmate';
+import { createLanguageModel, CheckmateLanguageModel } from 'checkmate';
 import { createCheckMate, Checkmate } from 'checkmate';
 
 // Create executor and verifier
-const executor: TypeChatLanguageModel = createLanguageModel(process.env);
-const verifier: TypeChatLanguageModel = createLanguageModel(process.env);
+const executor: CheckmateLanguageModel = createLanguageModel(process.env);
+const verifier: CheckmateLanguageModel = createLanguageModel(process.env);
 
 // Create Checkmate instance
 const checkmate: Checkmate = createCheckMate(executor, verifier);
