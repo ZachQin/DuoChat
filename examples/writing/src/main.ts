@@ -20,7 +20,7 @@ const taskDescription = 'Write an introduction for a blog post about the importa
 // Run Checkmate
 async function main(): Promise<void> {
   const result = await checkmate.perform(taskDescription);
-  console.log('Final result:', result);
+  console.log('Final result:\n', result);
 }
 
 main();
