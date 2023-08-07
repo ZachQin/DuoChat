@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node dist/main.js",
     "build": "tsc -p src"
   },
   "author": "",
