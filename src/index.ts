@@ -1,2 +1,2 @@
 export * from './model';
-export * from './checkmate';
+export * from './duochat';

@@ -3,23 +3,23 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: path.join(__dirname, "../../../.env") });
 
-import { createLanguageModel, CheckmateLanguageModel } from 'checkmate';
-import { createCheckMate, Checkmate } from 'checkmate';
+import { createLanguageModel, DuoChatLanguageModel } from 'duochat';
+import { createDuoChat, DuoChat } from 'duochat';
 
 // Create executor and verifier
-const executor: CheckmateLanguageModel = createLanguageModel(process.env);
-const verifier: CheckmateLanguageModel = createLanguageModel(process.env);
+const executor: DuoChatLanguageModel = createLanguageModel(process.env);
+const verifier: DuoChatLanguageModel = createLanguageModel(process.env);
 
-// Create Checkmate instance
-const checkmate: Checkmate = createCheckMate(executor, verifier);
-checkmate.debug = true;
+// Create DuoChat instance
+const duochat: DuoChat = createDuoChat(executor, verifier);
+duochat.debug = true;
 
 // Define task description
 const taskDescription = 'Write an introduction for a blog post about the importance of digital privacy.';
 
-// Run Checkmate
+// Run DuoChat
 async function main(): Promise<void> {
-  const result = await checkmate.perform(taskDescription);
+  const result = await duochat.perform(taskDescription);
   console.log('Final result:\n', result);
 }
 

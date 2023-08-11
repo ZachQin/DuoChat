@@ -11,12 +11,12 @@
 import axios from "axios";
 
 /**
- * Represents a AI language model that can complete prompts. Checkmate uses an implementation of this
+ * Represents a AI language model that can complete prompts. DuoChat uses an implementation of this
  * interface to communicate with an AI service that can translate natural language requests to JSON
  * instances according to a provided schema. The `createLanguageModel`, `createOpenAILanguageModel`,
  * and `createAzureOpenAILanguageModel` functions create instances of this interface.
  */
-export interface CheckmateLanguageModel {
+export interface DuoChatLanguageModel {
     /**
      * Optional property that specifies the maximum number of retry attempts (the default is 3).
      */
@@ -45,9 +45,9 @@ export interface CheckmateLanguageModel {
  * or an exception will be thrown.
  *
  * If none of these key variables are defined, an exception is thrown.
- * @returns An instance of `CheckmateLanguageModel`.
+ * @returns An instance of `DuoChatLanguageModel`.
  */
-export function createLanguageModel(env: Record<string, string | undefined>): CheckmateLanguageModel {
+export function createLanguageModel(env: Record<string, string | undefined>): DuoChatLanguageModel {
     if (env.OPENAI_API_KEY) {
         const apiKey = env.OPENAI_API_KEY ?? missingEnvironmentVariable("OPENAI_API_KEY");
         const model = env.OPENAI_MODEL ?? missingEnvironmentVariable("OPENAI_MODEL");
@@ -69,9 +69,9 @@ export function createLanguageModel(env: Record<string, string | undefined>): Ch
  * @param model The model name.
  * @param endPoint The URL of the OpenAI REST API endpoint. Defaults to "https://api.openai.com/v1/chat/completions".
  * @param org The OpenAI organization id.
- * @returns An instance of `CheckmateLanguageModel`.
+ * @returns An instance of `DuoChatLanguageModel`.
  */
-export function createOpenAILanguageModel(apiKey: string, model: string, endPoint = "https://api.openai.com/v1/chat/completions", org = ""): CheckmateLanguageModel {
+export function createOpenAILanguageModel(apiKey: string, model: string, endPoint = "https://api.openai.com/v1/chat/completions", org = ""): DuoChatLanguageModel {
     return createAxiosLanguageModel(endPoint, {
         headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -86,9 +86,9 @@ export function createOpenAILanguageModel(apiKey: string, model: string, endPoin
  *   "https://{your-resource-name}.openai.azure.com/openai/deployments/{your-deployment-name}/chat/completions?api-version={API-version}".
  *   Example deployment names are "gpt-35-turbo" and "gpt-4". An example API versions is "2023-05-15".
  * @param apiKey The Azure OpenAI API key.
- * @returns An instance of `CheckmateLanguageModel`.
+ * @returns An instance of `DuoChatLanguageModel`.
  */
-export function createAzureOpenAILanguageModel(apiKey: string, endPoint: string,): CheckmateLanguageModel {
+export function createAzureOpenAILanguageModel(apiKey: string, endPoint: string,): DuoChatLanguageModel {
     return createAxiosLanguageModel(endPoint, { headers: { "api-key": apiKey } }, {});
 }
 
@@ -97,7 +97,7 @@ export function createAzureOpenAILanguageModel(apiKey: string, endPoint: string,
  */
 function createAxiosLanguageModel(url: string, config: object, defaultParams: Record<string, string>) {
     const client = axios.create(config);
-    const model: CheckmateLanguageModel = {
+    const model: DuoChatLanguageModel = {
         complete
     };
     return model;

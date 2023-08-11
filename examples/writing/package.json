@@ -15,6 +15,6 @@
   },
   "devDependencies": {
     "@types/node": "18.17",
-    "checkmate": "^0.0.1"
+    "duochat": "^0.0.1"
   }
 }

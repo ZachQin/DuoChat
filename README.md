@@ -1,34 +1,33 @@
-# Checkmate
+# DuoChat
 
-Checkmate is an advanced conversation system built on top of language models, allowing for iterative refinement of tasks via an executor-verifier duo. Inspired and structurally referencing the [TypeChat](https://github.com/microsoft/TypeChat) project by Microsoft, Checkmate aims to further the capabilities of iterative model refinement.
+DuoChat is an advanced language model interaction framework, designed to allow one model to execute a task and another model to verify or refine that task through a set number of rounds. This iterative process promotes the generation of more refined content by engaging two models in a back-and-forth conversation.
 
-A special thanks to the Microsoft TypeChat team for paving the way.
+## Inspiration
 
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact & Support](#contact--support)
+This project is inspired by and extends the concepts from [TypeChat](https://github.com/microsoft/TypeChat). We would like to express our gratitude to the original TypeChat project by Microsoft for laying the groundwork.
 
 ## Features
 
-- **Executor-Verifier Duo**: A dynamic duo of executor and verifier roles ensures improved results over iterations.
-- **Iterative Refinement**: Perform multiple rounds of task execution and verification.
-- **Extensibility**: Can be used with any language model compatible with the TypeChat-like architecture.
-- **Debugging Support**: Detailed logging and warning features for developers.
+- **Dual Model Interactions**: One model as the executor, the other as the verifier.
+- **Iterative Refinement**: Multiple rounds of task refinement to improve accuracy and quality.
+- **Configurable Rounds**: Adjust the number of refinement rounds as per your needs.
+- **Debug Mode**: Enhanced logging for debugging and insight purposes.
+
+## How to Use
+
+To use DuoChat, you need to:
+
+1. Initialize your executor and verifier models.
+2. Define your task.
+3. Call the `perform` method to get the models to interact and refine the task solution.
 
 ## Installation
 
-   ```
-   npm install checkmate
-   ```
+```bash
+npm install duochat
+```
 
-## Usage
-
-Here's a simple example to get you started:
+## Example
 
 ```typescript
 import path from "path";
@@ -36,47 +35,33 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: path.join(__dirname, "../../../.env") });
 
-import { createLanguageModel, CheckmateLanguageModel } from 'checkmate';
-import { createCheckMate, Checkmate } from 'checkmate';
+import { createLanguageModel, DuoChatLanguageModel } from 'duochat';
+import { createDuoChat, DuoChat } from 'duochat';
 
 // Create executor and verifier
-const executor: CheckmateLanguageModel = createLanguageModel(process.env);
-const verifier: CheckmateLanguageModel = createLanguageModel(process.env);
+const executor: DuoChatLanguageModel = createLanguageModel(process.env);
+const verifier: DuoChatLanguageModel = createLanguageModel(process.env);
 
-// Create Checkmate instance
-const checkmate: Checkmate = createCheckMate(executor, verifier);
-checkmate.debug = true;
+// Create DuoChat instance
+const duochat: DuoChat = createDuoChat(executor, verifier);
+duochat.debug = true;
 
 // Define task description
 const taskDescription = 'Write an introduction for a blog post about the importance of digital privacy.';
 
-// Run Checkmate
+// Run DuoChat
 async function main(): Promise<void> {
-  const result = await checkmate.perform(taskDescription);
+  const result = await duochat.perform(taskDescription);
   console.log('Final result:\n', result);
 }
 
 main();
 ```
 
-For detailed usage, configuration options, and other advanced features, refer to the inline documentation in the `checkmate.ts` file.
+## Acknowledgements
 
-## Contributing
-
-We welcome contributions! Please follow the below steps:
-
-1. Fork the repository.
-2. Create a new branch for your features or fixes.
-3. Submit a pull request, and provide a detailed description of your changes.
+Special thanks to [TypeChat](https://github.com/microsoft/TypeChat) for providing the foundational ideas and structure for this project.
 
 ## License
 
-This project is licensed under the MIT License. Refer to the `LICENSE` file for detailed information.
-
-## Contact & Support
-
-For any queries, bug reports, or feature requests, open an issue on GitHub.
-
----
-
-Happy refining with Checkmate! 🏁
+[MIT License](LICENSE)
